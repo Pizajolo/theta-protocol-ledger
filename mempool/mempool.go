@@ -423,6 +423,53 @@ func (mp *Mempool) GetCandidateTransactionHashes() []string {
 	return txHashes
 }
 
+type MempoolTransaction struct {
+	Hash           string       `json:"hash"`
+	Type           byte         `json:"type"`
+	Tx             *core.TxInfo `json:"transaction"`
+	RawTransaction string       `json:"raw_transaction"`
+	EffectiveGas   *big.Int     `json:"effective_gas"`
+}
+
+// GetCandidateTransactions returns all the currently candidate transactions with full details.
+func (mp *Mempool) GetCandidateTransactions() []MempoolTransaction {
+	mp.mutex.Lock()
+	defer mp.mutex.Unlock()
+
+	transactions := []MempoolTransaction{}
+	txgElemList := mp.candidateTxs.ElementList()
+	for _, txgElem := range *txgElemList {
+		txg := txgElem.(*mempoolTransactionGroup)
+		txElemList := txg.txs.ElementList()
+		for _, txElem := range *txElemList {
+			tx := txElem.(*mempoolTransaction)
+
+			// Extract transaction hash and raw data
+			txHash := "0x" + getTransactionHash(tx.rawTransaction)
+			rawTx := tx.rawTransaction
+			txInfo := tx.txInfo
+
+			// Create MempoolTransaction object
+			mempoolTx := MempoolTransaction{
+				Hash:           txHash,
+				Type:           txInfo.Type,
+				Tx:             txInfo,
+				RawTransaction: hex.EncodeToString(rawTx),
+			}
+
+			// Add effective gas if available
+			if txInfo != nil && txInfo.EffectiveGasPrice != nil {
+				mempoolTx.EffectiveGas = txInfo.EffectiveGasPrice
+			}
+
+			// Append transaction to the list
+			transactions = append(transactions, mempoolTx)
+		}
+	}
+
+	return transactions
+}
+
 // Flush removes all transactions from the Mempool and the transactionBookkeeper
 func (mp *Mempool) Flush() {
 	mp.mutex.Lock()
