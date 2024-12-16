@@ -259,7 +259,18 @@ type PendingTransaction struct {
 // getTransactionHash calculates the hash of a raw transaction.
 func (t *ThetaRPCService) GetPendingTransactions(args *GetPendingTransactionsArgs, result *GetPendingTransactionsResult) error {
 	// Retrieve full candidate transactions from the mempool
-	pendingTransactions := t.mempool.GetCandidateTransactions()
+	mempoolTransactions := t.mempool.GetCandidateTransactions()
+
+	// Convert MempoolTransaction to PendingTransaction
+	pendingTransactions := make([]PendingTransaction, len(mempoolTransactions))
+	for i, tx := range mempoolTransactions {
+		pendingTransactions[i] = PendingTransaction{
+			Hash:           tx.Hash,
+			Tx:             tx.Tx,
+			RawTransaction: tx.RawTransaction,
+			EffectiveGas:   tx.EffectiveGas,
+		}
+	}
 
 	// Set the result
 	result.Transactions = pendingTransactions
