@@ -425,7 +425,6 @@ func (mp *Mempool) GetCandidateTransactionHashes() []string {
 
 type MempoolTransaction struct {
 	Hash           string       `json:"hash"`
-	Type           byte         `json:"type"`
 	Tx             *core.TxInfo `json:"transaction"`
 	RawTransaction string       `json:"raw_transaction"`
 	EffectiveGas   *big.Int     `json:"effective_gas"`
@@ -452,7 +451,6 @@ func (mp *Mempool) GetCandidateTransactions() []MempoolTransaction {
 			// Create MempoolTransaction object
 			mempoolTx := MempoolTransaction{
 				Hash:           txHash,
-				Type:           txInfo.Type,
 				Tx:             txInfo,
 				RawTransaction: hex.EncodeToString(rawTx),
 			}

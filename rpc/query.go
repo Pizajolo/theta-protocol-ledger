@@ -251,7 +251,6 @@ type GetPendingTransactionsResult struct {
 
 type PendingTransaction struct {
 	Hash           string                       `json:"hash"`
-	Type           byte                         `json:"type"`
 	Tx             *core.TxInfo                 `json:"transaction"`
 	RawTransaction string                       `json:"raw_transaction"`
 	EffectiveGas   *big.Int                     `json:"effective_gas"`
