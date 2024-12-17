@@ -247,6 +247,7 @@ type GetPendingTransactionsArgs struct {
 
 type PendingTransaction struct {
 	Hash           string                       `json:"hash"`
+	Type           byte                         `json:"type"`
 	Tx             *core.TxInfo                 `json:"transaction"`
 	RawTransaction string                       `json:"raw_transaction"`
 	EffectiveGas   *big.Int                     `json:"effective_gas"`
@@ -256,23 +257,37 @@ type GetPendingTransactionsResult struct {
 	Transactions []PendingTransaction `json:"transactions"`
 }
 
-// getTransactionHash calculates the hash of a raw transaction.
+// GetPendingTransactions retrieves pending transactions from the mempool.
 func (t *ThetaRPCService) GetPendingTransactions(args *GetPendingTransactionsArgs, result *GetPendingTransactionsResult) error {
 	// Retrieve full candidate transactions from the mempool
 	mempoolTransactions := t.mempool.GetCandidateTransactions()
 
 	// Convert MempoolTransaction to PendingTransaction
-	pendingTransactions := make([]PendingTransaction, len(mempoolTransactions))
-	for i, tx := range mempoolTransactions {
-		pendingTransactions[i] = PendingTransaction{
+	pendingTransactions := make([]PendingTransaction, 0, len(mempoolTransactions))
+
+	for _, tx := range mempoolTransactions {
+		// Decode the raw transaction bytes
+		txFinal, err := types.TxFromBytes(tx.RawTransaction)
+		if err != nil {
+			// Log the error and skip the problematic transaction
+			t.logger.Warnf("Error decoding transaction: %v", err)
+			continue
+		}
+
+		// Format the pending transaction
+		pendingTx := PendingTransaction{
 			Hash:           tx.Hash,
 			Tx:             tx.Tx,
-			RawTransaction: tx.RawTransaction,
+			Type:           getTxType(txFinal), // Custom function to determine the transaction type
+			RawTransaction: tx.RawTransaction, // Keep original raw transaction for reference
 			EffectiveGas:   tx.EffectiveGas,
 		}
+
+		// Add the formatted transaction to the list
+		pendingTransactions = append(pendingTransactions, pendingTx)
 	}
 
-	// Set the result
+	// Set the result with all formatted pending transactions
 	result.Transactions = pendingTransactions
 	return nil
 }
