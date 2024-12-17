@@ -245,15 +245,15 @@ func (t *ThetaRPCService) GetTransaction(args *GetTransactionArgs, result *GetTr
 type GetPendingTransactionsArgs struct {
 }
 
-type GetPendingTransactionsResult struct {
-	Transactions []PendingTransaction `json:"transactions"`
-}
-
 type PendingTransaction struct {
 	Hash           string                       `json:"hash"`
 	Tx             *core.TxInfo                 `json:"transaction"`
 	RawTransaction string                       `json:"raw_transaction"`
 	EffectiveGas   *big.Int                     `json:"effective_gas"`
+}
+
+type GetPendingTransactionsResult struct {
+	Transactions []PendingTransaction `json:"transactions"`
 }
 
 // getTransactionHash calculates the hash of a raw transaction.
