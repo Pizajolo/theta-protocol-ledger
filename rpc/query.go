@@ -248,7 +248,8 @@ type GetPendingTransactionsArgs struct {
 type PendingTransaction struct {
 	Hash           string                       `json:"hash"`
 	Type           byte                         `json:"type"`
-	Tx             *core.TxInfo                 `json:"transaction"`
+// 	Tx             *core.TxInfo                 `json:"transaction"`
+    Tx             types.Tx                      `json:"transaction"`
 	RawTransaction string                       `json:"raw_transaction"`
 	EffectiveGas   *big.Int                     `json:"effective_gas"`
 }
@@ -266,18 +267,19 @@ func (t *ThetaRPCService) GetPendingTransactions(args *GetPendingTransactionsArg
 	pendingTransactions := make([]PendingTransaction, 0, len(mempoolTransactions))
 
 	for _, tx := range mempoolTransactions {
+	    txBytes := []byte(tx.RawTransaction) // Convert string to []byte
 		// Decode the raw transaction bytes
-		txFinal, err := types.TxFromBytes(tx.RawTransaction)
+		txFinal, err := types.TxFromBytes(txBytes)
 		if err != nil {
 			// Log the error and skip the problematic transaction
-			t.logger.Warnf("Error decoding transaction: %v", err)
+			fmt.Errorf("Error decoding transaction: %v", err)
 			continue
 		}
 
 		// Format the pending transaction
 		pendingTx := PendingTransaction{
 			Hash:           tx.Hash,
-			Tx:             tx.Tx,
+			Tx:             txFinal,
 			Type:           getTxType(txFinal), // Custom function to determine the transaction type
 			RawTransaction: tx.RawTransaction, // Keep original raw transaction for reference
 			EffectiveGas:   tx.EffectiveGas,
