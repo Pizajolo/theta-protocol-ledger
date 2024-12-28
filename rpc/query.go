@@ -242,25 +242,39 @@ func (t *ThetaRPCService) GetTransaction(args *GetTransactionArgs, result *GetTr
 // 	return nil
 // }
 
+// type GetPendingTransactionsArgs struct {
+// }
+//
+// // 	Hash           string                       `json:"hash"`
+// // 	Type           byte                         `json:"type"`
+// // // 	Tx             *core.TxInfo                 `json:"transaction"`
+// //     Tx             types.Tx                      `json:"transaction"`
+// // 	RawTransaction string                       `json:"raw_transaction"`
+// // 	EffectiveGas   *big.Int                     `json:"effective_gas"`
+//
+// type PendingTransaction struct {
+// 	Hash           string       `json:"hash"`
+// 	Tx             *core.TxInfo `json:"transaction"`
+// 	RawTransaction string       `json:"raw_transaction"`
+// 	EffectiveGas   *big.Int     `json:"effective_gas"`
+// }
+//
+// type GetPendingTransactionsResult struct {
+// 	Transactions []PendingTransaction `json:"transactions"`
+// }
+
 type GetPendingTransactionsArgs struct {
-}
-
-// 	Hash           string                       `json:"hash"`
-// 	Type           byte                         `json:"type"`
-// // 	Tx             *core.TxInfo                 `json:"transaction"`
-//     Tx             types.Tx                      `json:"transaction"`
-// 	RawTransaction string                       `json:"raw_transaction"`
-// 	EffectiveGas   *big.Int                     `json:"effective_gas"`
-
-type PendingTransaction struct {
-	Hash           string       `json:"hash"`
-	Tx             *core.TxInfo `json:"transaction"`
-	RawTransaction string       `json:"raw_transaction"`
-	EffectiveGas   *big.Int     `json:"effective_gas"`
 }
 
 type GetPendingTransactionsResult struct {
 	Transactions []PendingTransaction `json:"transactions"`
+}
+
+type PendingTransaction struct {
+	Hash           string                       `json:"hash"`
+	Tx             *core.TxInfo                 `json:"transaction"`
+	RawTransaction string                       `json:"raw_transaction"`
+	EffectiveGas   *big.Int                     `json:"effective_gas"`
 }
 
 // GetPendingTransactions retrieves pending transactions from the mempool.
