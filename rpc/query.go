@@ -245,13 +245,14 @@ func (t *ThetaRPCService) GetTransaction(args *GetTransactionArgs, result *GetTr
 type GetPendingTransactionsArgs struct {
 }
 
-type PendingTransaction struct {
 // 	Hash           string                       `json:"hash"`
 // 	Type           byte                         `json:"type"`
 // // 	Tx             *core.TxInfo                 `json:"transaction"`
 //     Tx             types.Tx                      `json:"transaction"`
 // 	RawTransaction string                       `json:"raw_transaction"`
 // 	EffectiveGas   *big.Int                     `json:"effective_gas"`
+
+type PendingTransaction struct {
 	Hash           string       `json:"hash"`
 	Tx             *core.TxInfo `json:"transaction"`
 	RawTransaction string       `json:"raw_transaction"`
@@ -300,7 +301,18 @@ func (t *ThetaRPCService) GetPendingTransactions(args *GetPendingTransactionsArg
 //     log.Debugf("Returning %d pending transactions", len(result.Transactions))
 //     return nil
 // Retrieve full candidate transactions from the mempool
-	pendingTransactions := t.mempool.GetCandidateTransactions()
+		mempoolTransactions := t.mempool.GetCandidateTransactions()
+
+    	// Convert MempoolTransaction to PendingTransaction
+    	pendingTransactions := make([]PendingTransaction, len(mempoolTransactions))
+    	for i, tx := range mempoolTransactions {
+    		pendingTransactions[i] = PendingTransaction{
+    			Hash:           tx.Hash,
+    			Tx:             tx.Tx,
+    			RawTransaction: tx.RawTransaction,
+    			EffectiveGas:   tx.EffectiveGas,
+    		}
+    	}
 
 	// Set the result
 	result.Transactions = pendingTransactions
