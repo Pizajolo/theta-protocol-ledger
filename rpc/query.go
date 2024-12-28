@@ -260,38 +260,41 @@ type GetPendingTransactionsResult struct {
 
 // GetPendingTransactions retrieves pending transactions from the mempool.
 func (t *ThetaRPCService) GetPendingTransactions(args *GetPendingTransactionsArgs, result *GetPendingTransactionsResult) error {
-	// Retrieve full candidate transactions from the mempool
-	mempoolTransactions := t.mempool.GetCandidateTransactions()
+    log.Infof("Starting GetPendingTransactions")
 
-	// Convert MempoolTransaction to PendingTransaction
-	pendingTransactions := make([]PendingTransaction, 0, len(mempoolTransactions))
+    // Retrieve full candidate transactions from the mempool
+    mempoolTransactions := t.mempool.GetCandidateTransactions()
+    log.Infof("Retrieved %d transactions from mempool", len(mempoolTransactions))
 
-	for _, tx := range mempoolTransactions {
-	    txBytes := []byte(tx.RawTransaction) // Convert string to []byte
-		// Decode the raw transaction bytes
-		txFinal, err := types.TxFromBytes(txBytes)
-		if err != nil {
-			// Log the error and skip the problematic transaction
-			fmt.Errorf("Error decoding transaction: %v", err)
-			continue
-		}
+    // Convert MempoolTransaction to PendingTransaction
+    pendingTransactions := make([]PendingTransaction, 0, len(mempoolTransactions))
 
-		// Format the pending transaction
-		pendingTx := PendingTransaction{
-			Hash:           tx.Hash,
-			Tx:             txFinal,
-			Type:           getTxType(txFinal), // Custom function to determine the transaction type
-			RawTransaction: tx.RawTransaction, // Keep original raw transaction for reference
-			EffectiveGas:   tx.EffectiveGas,
-		}
+    for _, tx := range mempoolTransactions {
+        txBytes := []byte(tx.RawTransaction) // Convert string to []byte
+        // Decode the raw transaction bytes
+        txFinal, err := types.TxFromBytes(txBytes)
+        if err != nil {
+            log.Errorf("Error decoding transaction: %v", err)
+            continue
+        }
 
-		// Add the formatted transaction to the list
-		pendingTransactions = append(pendingTransactions, pendingTx)
-	}
+        // Format the pending transaction
+        pendingTx := PendingTransaction{
+            Hash:           tx.Hash,
+            Tx:             txFinal,
+            Type:           getTxType(txFinal), // Custom function to determine the transaction type
+            RawTransaction: tx.RawTransaction, // Keep original raw transaction for reference
+            EffectiveGas:   tx.EffectiveGas,
+        }
 
-	// Set the result with all formatted pending transactions
-	result.Transactions = pendingTransactions
-	return nil
+        // Add the formatted transaction to the list
+        pendingTransactions = append(pendingTransactions, pendingTx)
+    }
+
+    // Set the result with all formatted pending transactions
+    result.Transactions = pendingTransactions
+    log.Infof("Returning %d pending transactions", len(result.Transactions))
+    return nil
 }
 
 // ------------------------------ TraceBlocks -----------------------------------
