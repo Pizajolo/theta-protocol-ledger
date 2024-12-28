@@ -246,12 +246,16 @@ type GetPendingTransactionsArgs struct {
 }
 
 type PendingTransaction struct {
-	Hash           string                       `json:"hash"`
-	Type           byte                         `json:"type"`
-// 	Tx             *core.TxInfo                 `json:"transaction"`
-    Tx             types.Tx                      `json:"transaction"`
-	RawTransaction string                       `json:"raw_transaction"`
-	EffectiveGas   *big.Int                     `json:"effective_gas"`
+// 	Hash           string                       `json:"hash"`
+// 	Type           byte                         `json:"type"`
+// // 	Tx             *core.TxInfo                 `json:"transaction"`
+//     Tx             types.Tx                      `json:"transaction"`
+// 	RawTransaction string                       `json:"raw_transaction"`
+// 	EffectiveGas   *big.Int                     `json:"effective_gas"`
+	Hash           string       `json:"hash"`
+	Tx             *core.TxInfo `json:"transaction"`
+	RawTransaction string       `json:"raw_transaction"`
+	EffectiveGas   *big.Int     `json:"effective_gas"`
 }
 
 type GetPendingTransactionsResult struct {
