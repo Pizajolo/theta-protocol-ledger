@@ -260,11 +260,11 @@ type GetPendingTransactionsResult struct {
 
 // GetPendingTransactions retrieves pending transactions from the mempool.
 func (t *ThetaRPCService) GetPendingTransactions(args *GetPendingTransactionsArgs, result *GetPendingTransactionsResult) error {
-    log.Infof("Starting GetPendingTransactions")
+    log.Debugf("Starting GetPendingTransactions")
 
     // Retrieve full candidate transactions from the mempool
     mempoolTransactions := t.mempool.GetCandidateTransactions()
-    log.Infof("Retrieved %d transactions from mempool", len(mempoolTransactions))
+    log.Debugf("Retrieved %d transactions from mempool", len(mempoolTransactions))
 
     // Convert MempoolTransaction to PendingTransaction
     pendingTransactions := make([]PendingTransaction, 0, len(mempoolTransactions))
@@ -293,7 +293,7 @@ func (t *ThetaRPCService) GetPendingTransactions(args *GetPendingTransactionsArg
 
     // Set the result with all formatted pending transactions
     result.Transactions = pendingTransactions
-    log.Infof("Returning %d pending transactions", len(result.Transactions))
+    log.Debugf("Returning %d pending transactions", len(result.Transactions))
     return nil
 }
 
