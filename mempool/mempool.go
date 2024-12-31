@@ -423,9 +423,6 @@ func (mp *Mempool) GetCandidateTransactionHashes() []string {
 	return txHashes
 }
 
-// GetCandidateTransactions returns all the currently candidate transactions
-
-
 // Flush removes all transactions from the Mempool and the transactionBookkeeper
 func (mp *Mempool) Flush() {
 	mp.mutex.Lock()
