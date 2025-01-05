@@ -229,16 +229,51 @@ func (t *ThetaRPCService) GetTransaction(args *GetTransactionArgs, result *GetTr
 
 // ------------------------------ GetPendingTransactions -----------------------------------
 
+// type GetPendingTransactionsArgs struct {
+// }
+//
+// type GetPendingTransactionsResult struct {
+// 	TxHashes []string `json:"tx_hashes"`
+// }
+//
+// func (t *ThetaRPCService) GetPendingTransactions(args *GetPendingTransactionsArgs, result *GetPendingTransactionsResult) (err error) {
+// 	pendingTxHashes := t.mempool.GetCandidateTransactionHashes()
+// 	result.TxHashes = pendingTxHashes
+// 	return nil
+// }
+
 type GetPendingTransactionsArgs struct {
 }
 
-type GetPendingTransactionsResult struct {
-	TxHashes []string `json:"tx_hashes"`
+type PendingTransaction struct {
+	Hash           string                       `json:"hash"`
+	Tx             *core.TxInfo                 `json:"transaction"`
+	RawTransaction string                       `json:"raw_transaction"`
+	EffectiveGas   *big.Int                     `json:"effective_gas"`
 }
 
-func (t *ThetaRPCService) GetPendingTransactions(args *GetPendingTransactionsArgs, result *GetPendingTransactionsResult) (err error) {
-	pendingTxHashes := t.mempool.GetCandidateTransactionHashes()
-	result.TxHashes = pendingTxHashes
+type GetPendingTransactionsResult struct {
+	Transactions []PendingTransaction `json:"transactions"`
+}
+
+// getTransactionHash calculates the hash of a raw transaction.
+func (t *ThetaRPCService) GetPendingTransactions(args *GetPendingTransactionsArgs, result *GetPendingTransactionsResult) error {
+	// Retrieve full candidate transactions from the mempool
+	mempoolTransactions := t.mempool.GetCandidateTransactions()
+
+	// Convert MempoolTransaction to PendingTransaction
+	pendingTransactions := make([]PendingTransaction, len(mempoolTransactions))
+	for i, tx := range mempoolTransactions {
+		pendingTransactions[i] = PendingTransaction{
+			Hash:           tx.Hash,
+			Tx:             tx.Tx,
+			RawTransaction: tx.RawTransaction,
+			EffectiveGas:   tx.EffectiveGas,
+		}
+	}
+
+	// Set the result
+	result.Transactions = pendingTransactions
 	return nil
 }
 
